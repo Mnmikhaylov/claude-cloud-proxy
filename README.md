@@ -82,6 +82,8 @@ The proxy listens on `127.0.0.1:2222` by default.
 
 Run Claude Code in a new terminal:
 
+Set the Foundation Models key only once, as `ANTHROPIC_AUTH_TOKEN` below.
+
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
 export ANTHROPIC_AUTH_TOKEN="<foundation-models-cloud-ru-key>"

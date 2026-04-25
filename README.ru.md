@@ -82,6 +82,8 @@ python -m claude_cloud_proxy
 
 Запустите Claude Code в новом терминале:
 
+Укажите Foundation Models key только один раз, в `ANTHROPIC_AUTH_TOKEN` ниже.
+
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
 export ANTHROPIC_AUTH_TOKEN="<foundation-models-cloud-ru-key>"
