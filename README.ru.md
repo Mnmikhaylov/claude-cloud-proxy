@@ -48,9 +48,7 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 
 ## Быстрый старт (macOS)
 
-<video src="https://github.com/Mnmikhaylov/claude-cloud-proxy/raw/master/docs/assets/quickstart.mp4" controls width="100%">
-  Ваш браузер не поддерживает video tag.
-</video>
+https://github.com/Mnmikhaylov/claude-cloud-proxy/raw/master/docs/assets/quickstart.mp4
 
 Откройте терминал, создайте тестовую папку, удалите предыдущую копию проекта,
 скачайте последнюю версию репозитория и перейдите в корень проекта:
