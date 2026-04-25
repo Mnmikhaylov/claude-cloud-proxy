@@ -61,6 +61,7 @@ class CloudRUClient:
         if response.status_code < 400:
             return
 
+        await response.aread()
         message = response.text
         try:
             data = response.json()

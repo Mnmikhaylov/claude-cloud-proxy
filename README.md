@@ -52,7 +52,7 @@ Open Terminal, create a test folder, remove any previous checkout, download the
 latest repository version, and enter the project root:
 
 ```bash
-mkdir test-proxy
+mkdir -p test-proxy
 cd test-proxy
 rm -rf claude-cloud-proxy
 git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
@@ -75,7 +75,7 @@ python -m pip install -e ".[dev]"
 Run the proxy:
 
 ```bash
-claude-cloud-proxy
+python -m claude_cloud_proxy
 ```
 
 The proxy listens on `127.0.0.1:2222` by default.

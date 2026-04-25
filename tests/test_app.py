@@ -661,6 +661,31 @@ def test_upstream_auth_error_is_mapped_to_anthropic_error() -> None:
     }
 
 
+def test_streaming_upstream_error_is_returned_as_anthropic_sse_error() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            400,
+            json={"error": {"message": "bad stream request"}},
+        )
+
+    with make_client(handler) as client:
+        with client.stream(
+            "POST",
+            "/v1/messages",
+            json={
+                "model": "Qwen/Qwen3-Coder-Next",
+                "max_tokens": 64,
+                "stream": True,
+                "messages": [{"role": "user", "content": "hello"}],
+            },
+        ) as response:
+            body = "".join(response.iter_text())
+
+    assert response.status_code == 200
+    assert "event: error" in body
+    assert '"type":"invalid_request_error","message":"bad stream request"' in body
+
+
 def test_unknown_anthropic_field_returns_400() -> None:
     with make_client(lambda request: httpx.Response(200, json={})) as client:
         response = client.post(

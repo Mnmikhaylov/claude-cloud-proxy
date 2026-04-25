@@ -52,7 +52,7 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 скачайте последнюю версию репозитория и перейдите в корень проекта:
 
 ```bash
-mkdir test-proxy
+mkdir -p test-proxy
 cd test-proxy
 rm -rf claude-cloud-proxy
 git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
@@ -75,7 +75,7 @@ python -m pip install -e ".[dev]"
 Запустите прокси:
 
 ```bash
-claude-cloud-proxy
+python -m claude_cloud_proxy
 ```
 
 По умолчанию прокси слушает `127.0.0.1:2222`.

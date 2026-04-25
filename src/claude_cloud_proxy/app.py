@@ -18,6 +18,7 @@ from claude_cloud_proxy.token_counting import TokenEstimator
 from claude_cloud_proxy.translator import (
     AnthropicTranslator,
     OpenAIStreamToAnthropicAdapter,
+    anthropic_sse,
 )
 from claude_cloud_proxy.upstream import CloudRUClient
 
@@ -97,15 +98,19 @@ def create_app(
         )
 
         async def stream() -> Any:
-            async with upstream.client.stream(
-                "POST",
-                "chat/completions",
-                json=translated,
-                headers=headers,
-            ) as response:
-                await upstream.raise_for_status(response)
-                async for chunk in adapter.transform(response):
-                    yield chunk
+            try:
+                async with upstream.client.stream(
+                    "POST",
+                    "chat/completions",
+                    json=translated,
+                    headers=headers,
+                ) as response:
+                    await upstream.raise_for_status(response)
+                    async for chunk in adapter.transform(response):
+                        yield chunk
+            except ProxyError as exc:
+                logger.info("Upstream streaming request failed: %s", exc.message)
+                yield anthropic_sse("error", exc.as_payload())
 
         return StreamingResponse(
             stream(),
