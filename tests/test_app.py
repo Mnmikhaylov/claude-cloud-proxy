@@ -145,7 +145,7 @@ def test_request_body_size_limit() -> None:
     with TestClient(app) as client:
         response = client.post(
             "/v1/messages",
-            content=b'{"model":"x","max_tokens":1,"messages":[{"role":"user","content":"'
+            content=b'{"model":"Qwen/Qwen3-Coder-Next","max_tokens":1,"messages":[{"role":"user","content":"'
             + b"x" * 128
             + b'"}]}',
             headers={"content-type": "application/json"},
@@ -204,7 +204,7 @@ def test_count_tokens_returns_best_effort_estimate() -> None:
         response = client.post(
             "/v1/messages/count_tokens",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "system": "You are a coding model.",
                 "messages": [{"role": "user", "content": "Write a function."}],
                 "tools": [
@@ -234,7 +234,7 @@ def test_non_stream_request_translates_tool_result_and_system_messages() -> None
             200,
             json={
                 "id": "chatcmpl-1",
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "choices": [
                     {
                         "finish_reason": "stop",
@@ -249,7 +249,7 @@ def test_non_stream_request_translates_tool_result_and_system_messages() -> None
         )
 
     body = {
-        "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+        "model": "Qwen/Qwen3-Coder-Next",
         "max_tokens": 128,
         "system": "You are a careful coding assistant.",
         "messages": [
@@ -309,7 +309,7 @@ def test_non_stream_response_translates_tool_calls_back_to_anthropic() -> None:
             200,
             json={
                 "id": "chatcmpl-2",
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "choices": [
                     {
                         "finish_reason": "tool_calls",
@@ -337,7 +337,7 @@ def test_non_stream_response_translates_tool_calls_back_to_anthropic() -> None:
         response = client.post(
             "/v1/messages",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "max_tokens": 128,
                 "tool_choice": {"type": "any"},
                 "tools": [
@@ -369,7 +369,7 @@ def test_non_stream_response_translates_tool_calls_back_to_anthropic() -> None:
 
 def test_streaming_text_response_is_converted_to_anthropic_sse() -> None:
     stream = (
-        'data: {"id":"chatcmpl-3","model":"Qwen/Qwen3-Coder-480B-A35B-Instruct","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}\n\n'
+        'data: {"id":"chatcmpl-3","model":"Qwen/Qwen3-Coder-Next","choices":[{"index":0,"delta":{"role":"assistant"},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-3","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-3","choices":[{"index":0,"delta":{"content":" world"},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-3","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":10,"completion_tokens":3}}\n\n'
@@ -388,7 +388,7 @@ def test_streaming_text_response_is_converted_to_anthropic_sse() -> None:
             "POST",
             "/v1/messages",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "max_tokens": 128,
                 "stream": True,
                 "messages": [{"role": "user", "content": "Say hello"}],
@@ -406,7 +406,7 @@ def test_streaming_text_response_is_converted_to_anthropic_sse() -> None:
 
 def test_streaming_tool_call_response_is_converted_to_tool_use_sse() -> None:
     stream = (
-        'data: {"id":"chatcmpl-4","model":"Qwen/Qwen3-Coder-480B-A35B-Instruct","choices":[{"index":0,"delta":{"content":"Checking."},"finish_reason":null}]}\n\n'
+        'data: {"id":"chatcmpl-4","model":"Qwen/Qwen3-Coder-Next","choices":[{"index":0,"delta":{"content":"Checking."},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-4","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_2","type":"function","function":{"name":"read_file","arguments":""}}]},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-4","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\\"path\\":\\"README.md\\"}"}}]},"finish_reason":null}]}\n\n'
         'data: {"id":"chatcmpl-4","choices":[{"index":0,"delta":{},"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":10,"completion_tokens":8}}\n\n'
@@ -425,7 +425,7 @@ def test_streaming_tool_call_response_is_converted_to_tool_use_sse() -> None:
             "POST",
             "/v1/messages",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "max_tokens": 128,
                 "stream": True,
                 "messages": [{"role": "user", "content": "Read the README"}],
@@ -450,7 +450,7 @@ def test_upstream_auth_error_is_mapped_to_anthropic_error() -> None:
         response = client.post(
             "/v1/messages",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "max_tokens": 64,
                 "messages": [{"role": "user", "content": "hello"}],
             },
@@ -471,7 +471,7 @@ def test_unknown_anthropic_field_returns_400() -> None:
         response = client.post(
             "/v1/messages",
             json={
-                "model": "Qwen/Qwen3-Coder-480B-A35B-Instruct",
+                "model": "Qwen/Qwen3-Coder-Next",
                 "max_tokens": 64,
                 "messages": [{"role": "user", "content": "hello"}],
                 "foo": "bar",
