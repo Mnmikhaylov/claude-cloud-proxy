@@ -164,19 +164,24 @@ def _select_incoming_cloud_ru_key(request: Request) -> str | None:
 def _incoming_auth_candidates(request: Request) -> list[str]:
     candidates: list[str] = []
 
-    x_api_key = request.headers.get("X-Api-Key")
-    if x_api_key:
-        candidates.append(x_api_key.strip())
-
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header.lower().startswith("bearer "):
-        candidates.append(auth_header.split(" ", 1)[1].strip())
-
-    anthropic_auth_token = request.headers.get("Anthropic-Auth-Token")
-    if anthropic_auth_token:
-        candidates.append(anthropic_auth_token.strip())
+    for header_name in (
+        "X-Api-Key",
+        "Authorization",
+        "Proxy-Authorization",
+        "Anthropic-Auth-Token",
+    ):
+        header_value = request.headers.get(header_name)
+        if header_value:
+            candidates.append(_normalize_auth_value(header_value))
 
     return [candidate for candidate in candidates if candidate]
+
+
+def _normalize_auth_value(value: str) -> str:
+    normalized = value.strip().strip("'\"")
+    if normalized.lower().startswith("bearer "):
+        normalized = normalized.split(" ", 1)[1].strip()
+    return normalized.strip().strip("'\"")
 
 
 def _validate_settings(settings: Settings) -> None:

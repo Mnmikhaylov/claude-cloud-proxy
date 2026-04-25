@@ -296,6 +296,104 @@ def test_cloud_ru_like_authorization_wins_over_placeholder_x_api_key() -> None:
     assert seen_headers["authorization"] == f"Bearer {cloud_ru_like_key}"
 
 
+def test_proxy_authorization_cloud_ru_key_is_supported() -> None:
+    seen_headers: dict[str, str] = {}
+    cloud_ru_like_key = (
+        "dGVzdC1wcm94eS1hdXRob3JpemF0aW9u.abcdef0123456789abcdef0123456789"
+    )
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_headers["authorization"] = request.headers["Authorization"]
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-proxy-authorization",
+                "model": "Qwen/Qwen3-Coder-Next",
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": "ok",
+                        },
+                    }
+                ],
+                "usage": {"prompt_tokens": 7, "completion_tokens": 1},
+            },
+        )
+
+    settings = Settings(cloud_ru_api_key=None, log_level="DEBUG")
+    app = create_app(
+        settings=settings,
+        upstream_transport=httpx.MockTransport(handler),
+    )
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/anthropic/v1/messages",
+            headers={
+                "authorization": "Bearer stale-anthropic-token",
+                "x-api-key": "local-proxy-key",
+                "proxy-authorization": f"Bearer {cloud_ru_like_key}",
+            },
+            json={
+                "model": "Qwen/Qwen3-Coder-Next",
+                "max_tokens": 64,
+                "messages": [{"role": "user", "content": "hello"}],
+            },
+        )
+
+    assert response.status_code == 200
+    assert seen_headers["authorization"] == f"Bearer {cloud_ru_like_key}"
+
+
+def test_bearer_prefix_in_x_api_key_is_normalized() -> None:
+    seen_headers: dict[str, str] = {}
+    cloud_ru_like_key = (
+        "dGVzdC14LWFwaS1rZXktYmVhcmVy.abcdef0123456789abcdef0123456789"
+    )
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_headers["authorization"] = request.headers["Authorization"]
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-normalized-x-api-key",
+                "model": "Qwen/Qwen3-Coder-Next",
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": "ok",
+                        },
+                    }
+                ],
+                "usage": {"prompt_tokens": 7, "completion_tokens": 1},
+            },
+        )
+
+    settings = Settings(cloud_ru_api_key=None, log_level="DEBUG")
+    app = create_app(
+        settings=settings,
+        upstream_transport=httpx.MockTransport(handler),
+    )
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/anthropic/v1/messages",
+            headers={"x-api-key": f"Bearer {cloud_ru_like_key}"},
+            json={
+                "model": "Qwen/Qwen3-Coder-Next",
+                "max_tokens": 64,
+                "messages": [{"role": "user", "content": "hello"}],
+            },
+        )
+
+    assert response.status_code == 200
+    assert seen_headers["authorization"] == f"Bearer {cloud_ru_like_key}"
+
+
 def test_count_tokens_returns_best_effort_estimate() -> None:
     with make_client(lambda request: httpx.Response(200, json={})) as client:
         response = client.post(
