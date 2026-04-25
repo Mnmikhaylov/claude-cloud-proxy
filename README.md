@@ -48,6 +48,10 @@ May not work:
 
 ## Quick start (macOS)
 
+<video src="https://github.com/Mnmikhaylov/claude-cloud-proxy/raw/master/docs/assets/quickstart.mp4" controls width="100%">
+  Your browser does not support the video tag.
+</video>
+
 Open Terminal, create a test folder, remove any previous checkout, download the
 latest repository version, and enter the project root:
 
