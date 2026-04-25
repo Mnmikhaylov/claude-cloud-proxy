@@ -48,6 +48,16 @@ May not work:
 
 ## Quick start (macOS)
 
+Open Terminal, create a test folder, download the repository, and enter the
+project root:
+
+```bash
+mkdir test-proxy
+cd test-proxy
+git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
+cd claude-cloud-proxy
+```
+
 Run from the project root:
 
 This will install or upgrade Homebrew `python@3.11` and create the virtual

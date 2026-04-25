@@ -48,6 +48,16 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 
 ## Быстрый старт (macOS)
 
+Откройте терминал, создайте тестовую папку, скачайте код репозитория и
+перейдите в корень проекта:
+
+```bash
+mkdir test-proxy
+cd test-proxy
+git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
+cd claude-cloud-proxy
+```
+
 Запускайте из корня проекта:
 
 Эта команда установит или обновит Homebrew `python@3.11` и создаст virtualenv
