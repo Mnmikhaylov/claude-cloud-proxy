@@ -1,0 +1,16 @@
+.DS_Store
+.env
+.venv_check/
+*.docx
+~$*.docx
+.pytest_cache/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+dist/
+build/
+*.egg-info/
+.coverage
+htmlcov/
