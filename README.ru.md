@@ -82,13 +82,15 @@ python -m claude_cloud_proxy
 
 Запустите Claude Code в новом терминале:
 
-Укажите Foundation Models key только один раз, в `ANTHROPIC_API_KEY` ниже.
-Локальный прокси пробросит этот входящий ключ в Cloud.ru, поэтому для macOS
-quick start не нужно задавать `CLOUD_RU_API_KEY` в терминале с прокси.
+Укажите Foundation Models key только один раз, в `ANTHROPIC_AUTH_TOKEN` ниже.
+При активном Claude Code login/Pro session это надежнее, чем `ANTHROPIC_API_KEY`:
+локальный прокси получает ключ как `Authorization` bearer token и пробрасывает
+его в Cloud.ru. Для macOS quick start не нужно задавать `CLOUD_RU_API_KEY` в
+терминале с прокси.
 
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
-export ANTHROPIC_API_KEY=<foundation-models-cloud-ru-key>
+export ANTHROPIC_AUTH_TOKEN=<foundation-models-cloud-ru-key>
 export ANTHROPIC_CUSTOM_MODEL_OPTION="Qwen/Qwen3-Coder-Next"
 export ANTHROPIC_DEFAULT_SONNET_MODEL="Qwen/Qwen3-Coder-Next"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="Qwen/Qwen3-Coder-Next"
