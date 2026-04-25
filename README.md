@@ -82,12 +82,6 @@ The proxy listens on `127.0.0.1:2222` by default.
 
 Run Claude Code in a new terminal:
 
-Set the Foundation Models key only once, as `ANTHROPIC_AUTH_TOKEN` below. With
-Claude Code login/Pro sessions this is more reliable than `ANTHROPIC_API_KEY`:
-the local proxy receives it as an `Authorization` bearer token and forwards it to
-Cloud.ru. The macOS quick start does not require `CLOUD_RU_API_KEY` in the proxy
-terminal.
-
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
 export ANTHROPIC_AUTH_TOKEN="<foundation-models-cloud-ru-key>"
