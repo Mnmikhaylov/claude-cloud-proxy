@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import logging
-from hmac import compare_digest
+import re
 from contextlib import asynccontextmanager
+from hmac import compare_digest
 from typing import Any
 from urllib.parse import urlparse
 
@@ -22,6 +23,7 @@ from claude_cloud_proxy.upstream import CloudRUClient
 
 ANTHROPIC_PATH_PREFIXES = ("", "/anthropic")
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+CLOUD_RU_API_KEY_PATTERN = re.compile(r"^[A-Za-z0-9+/=_-]{20,}\.[A-Fa-f0-9]{32,}$")
 
 
 def create_app(
@@ -132,12 +134,7 @@ def _build_upstream_headers(settings: Settings, request: Request) -> dict[str, s
     if cloud_ru_key:
         _require_proxy_authorization(settings, request)
     if not cloud_ru_key:
-        if request.headers.get("X-Api-Key"):
-            cloud_ru_key = request.headers["X-Api-Key"].strip()
-        else:
-            auth_header = request.headers.get("Authorization", "")
-            if auth_header.lower().startswith("bearer "):
-                cloud_ru_key = auth_header.split(" ", 1)[1].strip()
+        cloud_ru_key = _select_incoming_cloud_ru_key(request)
 
     if not cloud_ru_key:
         raise ProxyError(
@@ -154,6 +151,32 @@ def _build_upstream_headers(settings: Settings, request: Request) -> dict[str, s
     if session_id:
         headers["X-Claude-Code-Session-Id"] = session_id
     return headers
+
+
+def _select_incoming_cloud_ru_key(request: Request) -> str | None:
+    candidates = _incoming_auth_candidates(request)
+    for candidate in candidates:
+        if CLOUD_RU_API_KEY_PATTERN.fullmatch(candidate):
+            return candidate
+    return candidates[0] if candidates else None
+
+
+def _incoming_auth_candidates(request: Request) -> list[str]:
+    candidates: list[str] = []
+
+    x_api_key = request.headers.get("X-Api-Key")
+    if x_api_key:
+        candidates.append(x_api_key.strip())
+
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        candidates.append(auth_header.split(" ", 1)[1].strip())
+
+    anthropic_auth_token = request.headers.get("Anthropic-Auth-Token")
+    if anthropic_auth_token:
+        candidates.append(anthropic_auth_token.strip())
+
+    return [candidate for candidate in candidates if candidate]
 
 
 def _validate_settings(settings: Settings) -> None:

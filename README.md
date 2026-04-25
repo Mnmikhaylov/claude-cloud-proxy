@@ -82,6 +82,10 @@ The proxy listens on `127.0.0.1:2222` by default.
 
 Run Claude Code in a new terminal:
 
+Set the Foundation Models key only once, as `ANTHROPIC_API_KEY` below. The
+local proxy forwards that incoming key to Cloud.ru, so the macOS quick start does
+not require `CLOUD_RU_API_KEY` in the proxy terminal.
+
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
 export ANTHROPIC_API_KEY=<foundation-models-cloud-ru-key>

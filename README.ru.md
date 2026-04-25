@@ -82,6 +82,10 @@ claude-cloud-proxy
 
 Запустите Claude Code в новом терминале:
 
+Укажите Foundation Models key только один раз, в `ANTHROPIC_API_KEY` ниже.
+Локальный прокси пробросит этот входящий ключ в Cloud.ru, поэтому для macOS
+quick start не нужно задавать `CLOUD_RU_API_KEY` в терминале с прокси.
+
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
 export ANTHROPIC_API_KEY=<foundation-models-cloud-ru-key>
