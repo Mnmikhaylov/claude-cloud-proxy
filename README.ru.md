@@ -48,7 +48,7 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 
 ## Быстрый старт (macOS)
 
-https://github.com/Mnmikhaylov/claude-cloud-proxy/raw/master/docs/assets/quickstart.mp4
+https://github.com/user-attachments/assets/27ca57a1-d43f-44e0-bca5-7c80263aed9e
 
 Откройте терминал, создайте тестовую папку, удалите предыдущую копию проекта,
 скачайте последнюю версию репозитория и перейдите в корень проекта:
