@@ -90,7 +90,7 @@ python -m claude_cloud_proxy
 
 ```bash
 export ANTHROPIC_BASE_URL=http://127.0.0.1:2222/anthropic
-export ANTHROPIC_AUTH_TOKEN=<foundation-models-cloud-ru-key>
+export ANTHROPIC_AUTH_TOKEN="<foundation-models-cloud-ru-key>"
 export ANTHROPIC_CUSTOM_MODEL_OPTION="Qwen/Qwen3-Coder-Next"
 export ANTHROPIC_DEFAULT_SONNET_MODEL="Qwen/Qwen3-Coder-Next"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="Qwen/Qwen3-Coder-Next"
@@ -143,7 +143,7 @@ Installer создает:
 
 ```bash
 CLOUD_RU_BASE_URL=https://foundation-models.api.cloud.ru/v1
-CLOUD_RU_API_KEY=<foundation-models-cloud-ru-key>
+CLOUD_RU_API_KEY="<foundation-models-cloud-ru-key>"
 PROXY_HOST=127.0.0.1
 PROXY_PORT=2222
 PROXY_MAX_REQUEST_BYTES=33554432
