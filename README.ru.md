@@ -48,12 +48,13 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 
 ## Быстрый старт (macOS)
 
-Откройте терминал, создайте тестовую папку, скачайте код репозитория и
-перейдите в корень проекта:
+Откройте терминал, создайте тестовую папку, удалите предыдущую копию проекта,
+скачайте последнюю версию репозитория и перейдите в корень проекта:
 
 ```bash
 mkdir test-proxy
 cd test-proxy
+rm -rf claude-cloud-proxy
 git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
 cd claude-cloud-proxy
 ```

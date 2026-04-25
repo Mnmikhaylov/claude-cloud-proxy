@@ -48,12 +48,13 @@ May not work:
 
 ## Quick start (macOS)
 
-Open Terminal, create a test folder, download the repository, and enter the
-project root:
+Open Terminal, create a test folder, remove any previous checkout, download the
+latest repository version, and enter the project root:
 
 ```bash
 mkdir test-proxy
 cd test-proxy
+rm -rf claude-cloud-proxy
 git clone https://github.com/Mnmikhaylov/claude-cloud-proxy.git
 cd claude-cloud-proxy
 ```
