@@ -48,7 +48,7 @@ May not work:
 
 ## Quick start (macOS)
 
-https://github.com/Mnmikhaylov/claude-cloud-proxy/raw/master/docs/assets/quickstart.mp4
+https://github.com/user-attachments/assets/27ca57a1-d43f-44e0-bca5-7c80263aed9e
 
 Open Terminal, create a test folder, remove any previous checkout, download the
 latest repository version, and enter the project root:
