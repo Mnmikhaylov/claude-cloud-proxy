@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 import re
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from hashlib import sha256
 from hmac import compare_digest
 from typing import Any
 from urllib.parse import urlparse
@@ -25,6 +27,12 @@ from claude_cloud_proxy.upstream import CloudRUClient
 ANTHROPIC_PATH_PREFIXES = ("", "/anthropic")
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
 CLOUD_RU_API_KEY_PATTERN = re.compile(r"^[A-Za-z0-9+/=_-]{20,}\.[A-Fa-f0-9]{32,}$")
+
+
+@dataclass(frozen=True, slots=True)
+class AuthCandidate:
+    source: str
+    value: str
 
 
 def create_app(
@@ -71,7 +79,7 @@ def create_app(
     async def messages(request: Request) -> Any:
         body = AnthropicMessageRequest.model_validate(await request.json())
         session_id = request.headers.get("X-Claude-Code-Session-Id")
-        headers = _build_upstream_headers(settings, request)
+        headers = _build_upstream_headers(settings, request, logger)
         translated = translator.translate_message_request(body)
         input_tokens_estimate = translator.estimate_request_tokens(translated)
 
@@ -134,12 +142,19 @@ def create_app(
     return app
 
 
-def _build_upstream_headers(settings: Settings, request: Request) -> dict[str, str]:
+def _build_upstream_headers(
+    settings: Settings,
+    request: Request,
+    logger: logging.Logger,
+) -> dict[str, str]:
     cloud_ru_key = settings.cloud_ru_api_key
     if cloud_ru_key:
         _require_proxy_authorization(settings, request)
     if not cloud_ru_key:
-        cloud_ru_key = _select_incoming_cloud_ru_key(request)
+        selected = _select_incoming_cloud_ru_key(request)
+        if selected:
+            cloud_ru_key = selected.value
+            _log_auth_selection(logger, selected)
 
     if not cloud_ru_key:
         raise ProxyError(
@@ -158,28 +173,42 @@ def _build_upstream_headers(settings: Settings, request: Request) -> dict[str, s
     return headers
 
 
-def _select_incoming_cloud_ru_key(request: Request) -> str | None:
+def _select_incoming_cloud_ru_key(request: Request) -> AuthCandidate | None:
     candidates = _incoming_auth_candidates(request)
     for candidate in candidates:
-        if CLOUD_RU_API_KEY_PATTERN.fullmatch(candidate):
+        if CLOUD_RU_API_KEY_PATTERN.fullmatch(candidate.value):
             return candidate
     return candidates[0] if candidates else None
 
 
-def _incoming_auth_candidates(request: Request) -> list[str]:
-    candidates: list[str] = []
+def _incoming_auth_candidates(request: Request) -> list[AuthCandidate]:
+    candidates: list[AuthCandidate] = []
 
     for header_name in (
-        "X-Api-Key",
-        "Authorization",
-        "Proxy-Authorization",
-        "Anthropic-Auth-Token",
+        "x-api-key",
+        "authorization",
+        "proxy-authorization",
+        "anthropic-auth-token",
     ):
         header_value = request.headers.get(header_name)
         if header_value:
-            candidates.append(_normalize_auth_value(header_value))
+            normalized = _normalize_auth_value(header_value)
+            if normalized:
+                candidates.append(AuthCandidate(source=header_name, value=normalized))
 
-    return [candidate for candidate in candidates if candidate]
+    return candidates
+
+
+def _log_auth_selection(logger: logging.Logger, selected: AuthCandidate) -> None:
+    cloud_like = bool(CLOUD_RU_API_KEY_PATTERN.fullmatch(selected.value))
+    fingerprint = sha256(selected.value.encode()).hexdigest()[:12]
+    logger.info(
+        "Using incoming Cloud.ru API key source=%s len=%d sha256=%s cloud_like=%s",
+        selected.source,
+        len(selected.value),
+        fingerprint,
+        str(cloud_like).lower(),
+    )
 
 
 def _normalize_auth_value(value: str) -> str:

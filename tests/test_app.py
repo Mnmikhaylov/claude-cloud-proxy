@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 
 import httpx
 from fastapi.testclient import TestClient
@@ -392,6 +393,52 @@ def test_bearer_prefix_in_x_api_key_is_normalized() -> None:
 
     assert response.status_code == 200
     assert seen_headers["authorization"] == f"Bearer {cloud_ru_like_key}"
+
+
+def test_incoming_auth_selection_is_logged_without_secret(caplog) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-auth-log",
+                "model": "Qwen/Qwen3-Coder-Next",
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": "ok",
+                        },
+                    }
+                ],
+                "usage": {"prompt_tokens": 7, "completion_tokens": 1},
+            },
+        )
+
+    cloud_ru_like_key = (
+        "dGVzdC1hdXRoLWxvZy1rZXktaWQ.abcdef0123456789abcdef0123456789"
+    )
+    settings = Settings(cloud_ru_api_key=None, log_level="INFO")
+    app = create_app(
+        settings=settings,
+        upstream_transport=httpx.MockTransport(handler),
+    )
+
+    with TestClient(app) as client, caplog.at_level(logging.INFO, logger="claude_cloud_proxy"):
+        response = client.post(
+            "/anthropic/v1/messages",
+            headers={"x-api-key": cloud_ru_like_key},
+            json={
+                "model": "Qwen/Qwen3-Coder-Next",
+                "max_tokens": 64,
+                "messages": [{"role": "user", "content": "hello"}],
+            },
+        )
+
+    assert response.status_code == 200
+    assert "Using incoming Cloud.ru API key source=x-api-key" in caplog.text
+    assert "sha256=" in caplog.text
+    assert cloud_ru_like_key not in caplog.text
 
 
 def test_count_tokens_returns_best_effort_estimate() -> None:
