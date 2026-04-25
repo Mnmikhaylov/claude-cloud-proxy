@@ -50,10 +50,15 @@ May not work:
 
 Run from the project root:
 
+This will install or upgrade Homebrew `python@3.11` and create the virtual
+environment with Python 3.11.
+
 ```bash
-python3 -m venv .venv
+brew install python@3.11
+python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
 Run the proxy:

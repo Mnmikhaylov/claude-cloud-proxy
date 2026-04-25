@@ -50,10 +50,15 @@ OpenAI-compatible endpoint напрямую не понимает. Прокси 
 
 Запускайте из корня проекта:
 
+Эта команда установит или обновит Homebrew `python@3.11` и создаст virtualenv
+на Python 3.11.
+
 ```bash
-python3 -m venv .venv
+brew install python@3.11
+python3.11 -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
 Запустите прокси:
