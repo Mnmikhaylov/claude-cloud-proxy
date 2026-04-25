@@ -132,11 +132,12 @@ def _build_upstream_headers(settings: Settings, request: Request) -> dict[str, s
     if cloud_ru_key:
         _require_proxy_authorization(settings, request)
     if not cloud_ru_key:
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.lower().startswith("bearer "):
-            cloud_ru_key = auth_header.split(" ", 1)[1].strip()
-        elif request.headers.get("X-Api-Key"):
+        if request.headers.get("X-Api-Key"):
             cloud_ru_key = request.headers["X-Api-Key"].strip()
+        else:
+            auth_header = request.headers.get("Authorization", "")
+            if auth_header.lower().startswith("bearer "):
+                cloud_ru_key = auth_header.split(" ", 1)[1].strip()
 
     if not cloud_ru_key:
         raise ProxyError(

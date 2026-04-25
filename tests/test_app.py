@@ -199,6 +199,53 @@ def test_anthropic_prefixed_route_and_x_api_key_work() -> None:
     assert seen_headers["authorization"] == "Bearer cloud-ru-key"
 
 
+def test_x_api_key_takes_precedence_over_authorization_header() -> None:
+    seen_headers: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_headers["authorization"] = request.headers["Authorization"]
+        return httpx.Response(
+            200,
+            json={
+                "id": "chatcmpl-auth-precedence",
+                "model": "Qwen/Qwen3-Coder-Next",
+                "choices": [
+                    {
+                        "finish_reason": "stop",
+                        "message": {
+                            "role": "assistant",
+                            "content": "ok",
+                        },
+                    }
+                ],
+                "usage": {"prompt_tokens": 7, "completion_tokens": 1},
+            },
+        )
+
+    settings = Settings(cloud_ru_api_key=None, log_level="DEBUG")
+    app = create_app(
+        settings=settings,
+        upstream_transport=httpx.MockTransport(handler),
+    )
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/anthropic/v1/messages",
+            headers={
+                "authorization": "Bearer stale-anthropic-token",
+                "x-api-key": "cloud-ru-key",
+            },
+            json={
+                "model": "Qwen/Qwen3-Coder-Next",
+                "max_tokens": 64,
+                "messages": [{"role": "user", "content": "hello"}],
+            },
+        )
+
+    assert response.status_code == 200
+    assert seen_headers["authorization"] == "Bearer cloud-ru-key"
+
+
 def test_count_tokens_returns_best_effort_estimate() -> None:
     with make_client(lambda request: httpx.Response(200, json={})) as client:
         response = client.post(
